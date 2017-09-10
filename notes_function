@@ -2,10 +2,9 @@ notes() {
 	usage() { echo "notes <noteName>"; return; }
 
 	newNote=""
-	if [[ -z $1 ]]
-	then
-		usage; return
-	elif [[ "$1" == "new" ]]
+	curDate=$(date +%Y-%m-%d:%H:%M:%S)
+
+	if [[ "$1" == "new" || -z "$1" ]]
 	then
 		if ! [[ -z $2 ]]
 		then
@@ -14,12 +13,11 @@ notes() {
 
 		if [[ -z "$newNote" ]]
 		then
-			read -p "New note name [newNote_date]: " newNote
+			read -p "New note name [newNote_$curDate]: " newNote
 		fi
 
 		if [[ -z "$newNote" ]]
 		then
-			curDate=$(date +%Y-%m-%d:%H:%M:%S)
 			newNote="newNote_$curDate"
 		fi
 		echo -e "### $newNote ###\n\n###" > ~/Documents/notes/"$newNote"
