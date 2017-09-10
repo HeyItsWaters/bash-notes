@@ -1,0 +1,65 @@
+notes() {
+	usage() { echo "notes <noteName>"; return; }
+
+	newNote=""
+	if [[ -z $1 ]]
+	then
+		usage; return
+	elif [[ "$1" == "new" ]]
+	then
+		if ! [[ -z $2 ]]
+		then
+			newNote="$2"
+		fi
+
+		if [[ -z "$newNote" ]]
+		then
+			read -p "New note name [newNote_date]: " newNote
+		fi
+
+		if [[ -z "$newNote" ]]
+		then
+			curDate=$(date +%Y-%m-%d:%H:%M:%S)
+			newNote="newNote_$curDate"
+		fi
+		echo -e "### $newNote ###\n\n###" > ~/Documents/notes/"$newNote"
+
+		vi ~/Documents/notes/"$newNote"
+
+		if [[ "$(stat -c %s ~/Documents/notes/"$newNote")" -le 20 ]]
+		then
+			rm -rf ~/Documents/notes/"$newNote"
+			echo "Not not created..."
+			return
+		fi
+
+		echo "New note created with name: $newNote"
+		return
+	elif [[ "$1" == "list" ]]
+	then
+		ls -a ~/Documents/notes/
+		return
+	fi
+
+	if ! [[ -z $2 ]]
+	then
+		dive="$2"
+	fi
+
+	notesList=$(ls ~/Documents/notes | grep -i "$1")
+
+	if [ -z "$notesList" ]
+	then
+		echo "Not notes found."; return
+	fi
+
+	for note in "$notesList"
+	do
+		if [[ -z "$dive" ]]
+		then
+			cat ~/Documents/notes/"$note"
+		else
+			cat ~/Documents/notes/"$note" | sed -n -e "/$dive/,/###/I p"
+		fi
+	done
+}
