@@ -1,7 +1,12 @@
+#!/bin/bash
 notes() {
 	usage() { echo "notes <noteName>"; return; }
 
 	newNote=""
+	notesList=""
+	note=""
+	dive=""
+
 	curDate=$(date +%Y-%m-%d:%H:%M:%S)
 
 	if [[ "$1" == "new" || -z "$1" ]]
@@ -33,18 +38,26 @@ notes() {
 
 		echo "New note created with name: $newNote"
 		return
+
 	elif [[ "$1" == "list" ]]
 	then
-		ls -a ~/Documents/notes/
+		ls -lA ~/Documents/notes/ | awk '{print $10}'
 		return
 	fi
 
-	if ! [[ -z $2 ]]
+	if [[ "$2" == "edit" ]]
+	then
+		notesList=$(ls ~/Documents/notes | grep -i "$1")
+		for note in $notesList
+		do
+			vi ~/Documents/notes/"$note"
+		done
+	elif ! [[ -z "$2" ]] && [[ "$2" != "edit" ]]
 	then
 		dive="$2"
 	fi
 
-	notesList=$(ls ~/Documents/notes | grep -i "$1")
+	notesList=$(ls ~/Documents/notes/ | grep -i "$1")
 
 	if [ -z "$notesList" ]
 	then
@@ -57,7 +70,7 @@ notes() {
 		then
 			cat ~/Documents/notes/"$note"
 		else
-			cat ~/Documents/notes/"$note" | sed -n -e "/$dive/,/###/I p"
+			cat ~/Documents/notes/"$note" | sed -n -e "/$dive/,/###/Ip"
 		fi
 	done
 }
